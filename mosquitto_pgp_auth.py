@@ -1,6 +1,7 @@
 import gnupg
 import json
-from datetime import datetime
+from calendar import timegm
+from time import gmtime
 import mosquitto_auth
 
 gpg = None
@@ -32,7 +33,7 @@ def unpwd_check(username, password):
     # Check time and broker are correct
     if not auth_message['broker'] in valid_broker_hosts:
         return False
-    utc_datetime = int(datetime.utcnow().strftime("%s"))/60 # unixtime in minutes
+    utc_datetime = timegm(gmtime())/60 # unixtime in minutes
     supplied_datetime = int(auth_message['time'])
     time_delta = supplied_datetime - utc_datetime
     if (time_delta > 3) or (time_delta < -3): # 6 minute window to allow for plenty of clock skew
