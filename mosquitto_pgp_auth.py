@@ -49,6 +49,8 @@ def acl_check(clientid, username, topic, access):
             return True
         elif mosquitto_auth.topic_matches_sub('user/+/items', topic): # user reading another users items
             return True
+        elif mosquitto_auth.topic_matches_sub('$SYS/broker/clients/total', topic): # make the total number of users visible
+            return True
     elif access == mosquitto_auth.MOSQ_ACL_WRITE:
         if mosquitto_auth.topic_matches_sub('user/+/inbox', topic): # user sending a message
             return True
@@ -56,4 +58,5 @@ def acl_check(clientid, username, topic, access):
             return True
         elif mosquitto_auth.topic_matches_sub('user/' + username + '/profile', topic): # user updating their own profile
             return True
+    # Default is to deny access unless an ACL above is explicitly matched
     return False
