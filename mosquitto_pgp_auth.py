@@ -3,7 +3,6 @@ import json
 from calendar import timegm
 from time import gmtime
 import mosquitto_auth
-
 gpg = None
 valid_broker_hosts = {}
 
@@ -27,6 +26,17 @@ def unpwd_check(username, password):
          return False
     check = gpg.verify(password)
     if not check:
+        # Maybe we don't have their public key stored, import it and try again
+        import_res = gpg.import_keys(auth_message['key'])
+        if not import_res.count == 1:
+            #TODO watch out for public key flooding - limit user supplied input to 1 key before and delete here if they
+            # submit more than 1
+            return False
+        else:
+            check = gpg.verify(password)
+            if not check: # we imported a key but the auth didn't check out - purge the imported key
+                gpg.delete_keys(import_res.fingerprints[0]) # TODO: check for multiple keys
+                return False
         return False
     if not username == check.key_id:
         return False
