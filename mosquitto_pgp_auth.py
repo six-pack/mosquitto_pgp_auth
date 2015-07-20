@@ -75,7 +75,7 @@ def acl_check(clientid, username, topic, access):
             return True
         elif mosquitto_auth.topic_matches_sub('user/' + username + '/key', topic): # user updating their own keyblock
             return True
-        elif mosquitto_auth.topic_matches_sub('broker/*', topic) and username == broker_user : # broker operator setting broadcast messages
+        elif mosquitto_auth.topic_matches_sub('broker/*', topic) and username == broker_key : # broker operator setting broadcast messages
             return True            
     # Default is to deny access unless an ACL above is explicitly matched
     return False
