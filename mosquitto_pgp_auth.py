@@ -12,6 +12,7 @@ def plugin_init(opts):
     gpg = gnupg.GPG(gnupghome=conf.get('pgp_dir'))
     broker_hosts = str(conf.get('broker_hosts'))
     valid_broker_hosts = broker_hosts.split(',')
+    broker_key = conf.get('broker_key')
 
 def unpwd_check(username, password):
     stripped_message = password[password.index('{'):password.rindex('}')+1]
@@ -63,6 +64,8 @@ def acl_check(clientid, username, topic, access):
             return True
         elif mosquitto_auth.topic_matches_sub('$SYS/broker/clients/total', topic): # make the total number of users visible
             return True
+        elif mosquitto_auth.topic_matches_sub('broker/*', topic): # users may read any broker broadcast messages
+            return True
     elif access == mosquitto_auth.MOSQ_ACL_WRITE:
         if mosquitto_auth.topic_matches_sub('user/+/inbox', topic): # user sending a message
             return True
@@ -72,5 +75,7 @@ def acl_check(clientid, username, topic, access):
             return True
         elif mosquitto_auth.topic_matches_sub('user/' + username + '/key', topic): # user updating their own keyblock
             return True
+        elif mosquitto_auth.topic_matches_sub('broker/*', topic) and username == broker_user : # broker operator setting broadcast messages
+            return True            
     # Default is to deny access unless an ACL above is explicitly matched
     return False
