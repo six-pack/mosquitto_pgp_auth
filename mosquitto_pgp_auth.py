@@ -58,6 +58,8 @@ def acl_check(clientid, username, topic, access):
             return True
         elif mosquitto_auth.topic_matches_sub('user/+/profile', topic): # user reading another users profile
             return True
+        elif mosquitto_auth.topic_matches_sub('user/+/directory', topic): # user reading another users directory entry
+            return True
         elif mosquitto_auth.topic_matches_sub('user/+/key', topic): # user reading another users keyblock
             return True
         elif mosquitto_auth.topic_matches_sub('user/+/items', topic): # user reading another users items
@@ -72,6 +74,8 @@ def acl_check(clientid, username, topic, access):
         elif mosquitto_auth.topic_matches_sub('user/' + username + '/items', topic): # user updating their own items
             return True
         elif mosquitto_auth.topic_matches_sub('user/' + username + '/profile', topic): # user updating their own profile
+            return True
+        elif mosquitto_auth.topic_matches_sub('user/' + username + '/directory', topic): # user updating their own directory entry
             return True
         elif mosquitto_auth.topic_matches_sub('user/' + username + '/key', topic): # user updating their own keyblock
             return True
