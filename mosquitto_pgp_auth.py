@@ -54,32 +54,36 @@ def unpwd_check(username, password):
 
 def acl_check(clientid, username, topic, access):
     if access == mosquitto_auth.MOSQ_ACL_READ:
-        if mosquitto_auth.topic_matches_sub('user/' + username + '/inbox', topic): # user reading their own inbox
+        if mosquitto_auth.topic_matches_sub('mesh/+/user/' + username + '/inbox', topic): # user reading their own inbox
             return True
-        elif mosquitto_auth.topic_matches_sub('user/+/profile', topic): # user reading another users profile
+        elif mosquitto_auth.topic_matches_sub('mesh/+/user/+/profile', topic): # user reading another users profile
             return True
-        elif mosquitto_auth.topic_matches_sub('user/+/directory', topic): # user reading another users directory entry
+        elif mosquitto_auth.topic_matches_sub('mesh/+/user/+/directory', topic): # user reading another users directory entry
             return True
-        elif mosquitto_auth.topic_matches_sub('user/+/key', topic): # user reading another users keyblock
+        elif mosquitto_auth.topic_matches_sub('mesh/+/user/+/key', topic): # user reading another users keyblock
             return True
-        elif mosquitto_auth.topic_matches_sub('user/+/items', topic): # user reading another users items
+        elif mosquitto_auth.topic_matches_sub('mesh/+/user/+/items', topic): # user reading another users items
             return True
         elif mosquitto_auth.topic_matches_sub('$SYS/broker/clients/total', topic): # make the total number of users visible
             return True
         elif mosquitto_auth.topic_matches_sub('broker/*', topic): # users may read any broker broadcast messages
             return True
+        elif mosquitto_auth.topic_matches_sub('peers', topic): # users may read any broker peer message
+            return True
     elif access == mosquitto_auth.MOSQ_ACL_WRITE:
-        if mosquitto_auth.topic_matches_sub('user/+/inbox', topic): # user sending a message
+        if mosquitto_auth.topic_matches_sub('mesh/local/user/+/inbox', topic): # user sending a message
             return True
-        elif mosquitto_auth.topic_matches_sub('user/' + username + '/items', topic): # user updating their own items
+        elif mosquitto_auth.topic_matches_sub('mesh/local/user/' + username + '/items', topic): # user updating their own items
             return True
-        elif mosquitto_auth.topic_matches_sub('user/' + username + '/profile', topic): # user updating their own profile
+        elif mosquitto_auth.topic_matches_sub('mesh/local/user/' + username + '/profile', topic): # user updating their own profile
             return True
-        elif mosquitto_auth.topic_matches_sub('user/' + username + '/directory', topic): # user updating their own directory entry
+        elif mosquitto_auth.topic_matches_sub('mesh/local/user/' + username + '/directory', topic): # user updating their own directory entry
             return True
-        elif mosquitto_auth.topic_matches_sub('user/' + username + '/key', topic): # user updating their own keyblock
+        elif mosquitto_auth.topic_matches_sub('mesh/local/user/' + username + '/key', topic): # user updating their own keyblock
             return True
         elif mosquitto_auth.topic_matches_sub('broker/*', topic) and username == broker_key : # broker operator setting broadcast messages
-            return True            
+            return True  
+        elif mosquitto_auth.topic_matches_sub('peers', topic) and username == broker_key : # broker operator can modify MQTT mesh peers
+            return True 
     # Default is to deny access unless an ACL above is explicitly matched
     return False
